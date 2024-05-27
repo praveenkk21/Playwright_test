@@ -3,30 +3,38 @@ const { chromium } = require('playwright');
 import { loginpage } from '../pages/login'
 import { openPage } from '../pages/openpage'
 
-test.only('broswer config',async()=>{
-    const c= await chromium.launch();
-    const context=await c.newContext();
-    const page1= await context.newPage();
-    const openpage = new openPage(page1)
-    await openpage.openpage("https://working.kantimehealth.net/identity/v2/Accounts/Authorize")
-    await expect(page1).toHaveTitle(/KanTime/);
-    //await new Promise(() => {});
-    const loginPage = new loginpage(page1)
-    await page1.pause();
-    await loginPage.enterUsername("white@CKT.com")
-    await expect(loginPage.username).toHaveValue(/white@CKT.com/);
-    await loginPage.enterPassword("test@1234")
-    await loginPage.loginClick()
-})
 
-test("open login", ({ page }) => {
-    const openpage = new openPage(page)
-    openpage.openpage("https://working.kantimehealth.net/identity/v2/Accounts/Authorize")
+let browser;
+let context;
+let page;
+let loginPage;
+let openpage;
+
+test.beforeAll(async () => {
+    browser = await chromium.launch();
+    context = await browser.newContext();
+    page = await context.newPage();
+    openpage = new openPage(page);
+    loginPage = new loginpage(page);
 });
 
-test("login test", ({ page }) => {
-    const loginPage = new loginpage(page)
-    loginPage.enterUsername("white@CKT.com")
-    loginPage.enterPassword("test@1234")
-    loginPage.loginClick()
+test.afterAll(async () => {
+    await browser.close();
+});
+
+test.describe('browser config', () => {
+
+    test('Open main page and check title', async () => {
+        await openpage.openpage("https://working.kantimehealth.net/identity/v2/Accounts/Authorize");
+        await expect(page).toHaveTitle(/KanTime/);
+    });
+
+    test('Login test', async () => {
+        await loginPage.enterUsername("white@CKT.com");
+        await loginPage.enterPassword("test@1234");
+        await loginPage.loginClick();
+        await expect(page).toHaveTitle(/Medicare/);
+        // Add additional assertions to verify successful login if needed
+    });
+
 });
