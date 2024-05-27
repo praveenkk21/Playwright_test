@@ -6,7 +6,7 @@ exports.loginpage = class loginPage {
         this.login = page.locator('id=btn_login')
     }
 
-    async enterUsername(username, password) {
+    async enterUsername(username) {
         await this.username.fill(username)
     }
 
